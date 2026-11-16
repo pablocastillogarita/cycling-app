@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cycling App</title>
+  <meta name="description" content="Rutinas guiadas para bicicleta estática">
+  <meta name="theme-color" content="#161616">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Lista de rutinas -->
+  <main id="home" class="view">
+    <header class="home-header">
+      <h1>Cycling App</h1>
+      <p>Elige una rutina y a pedalear.</p>
+    </header>
+    <ul id="routine-list" class="routine-list"></ul>
+  </main>
+
+  <!-- Entrenamiento -->
+  <main id="workout" class="view" hidden>
+    <header class="topbar">
+      <button id="btn-back" class="icon-btn" aria-label="Volver a las rutinas">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="topbar-title">
+        <span id="w-name"></span>
+        <span id="w-clock" class="muted"></span>
+      </div>
+      <button id="btn-mute" class="icon-btn" aria-label="Silenciar avisos" aria-pressed="false">
+        <svg class="ic-on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+        <svg class="ic-off" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+      </button>
+    </header>
+
+    <section class="cards">
+      <div class="card">
+        <span class="card-label">Esfuerzo</span>
+        <span id="c-effort" class="card-value"></span>
+      </div>
+      <div class="card">
+        <span class="card-label">Próximo cambio</span>
+        <span id="c-next-time" class="card-value mono"></span>
+        <span id="c-next-what" class="card-sub"></span>
+      </div>
+      <div class="card wide">
+        <span class="card-label" id="c-label"></span>
+        <span class="card-value"><span id="c-seg-time" class="mono"></span>&nbsp;&nbsp;<span id="c-position"></span></span>
+      </div>
+    </section>
+
+    <section class="chart-wrap">
+      <svg id="chart" class="chart" preserveAspectRatio="none" aria-label="Gráfico de intensidad de la clase"></svg>
+    </section>
+
+    <nav class="controls">
+      <button id="btn-prev" class="icon-btn big" aria-label="Tramo anterior">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14M19 5l-9 7 9 7z"/></svg>
+      </button>
+      <button id="btn-play" class="play-btn" aria-label="Empezar">
+        <svg class="ic-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
+        <svg class="ic-pause" viewBox="0 0 24 24"><path d="M7 4h4v16H7zM14 4h4v16h-4z"/></svg>
+      </button>
+      <button id="btn-next" class="icon-btn big" aria-label="Siguiente tramo">
+        <svg viewBox="0 0 24 24"><path d="M18 5v14M5 5l9 7-9 7z"/></svg>
+      </button>
+    </nav>
+
+    <div id="finished" class="finished" hidden>
+      <div class="finished-box">
+        <h2>¡Clase terminada!</h2>
+        <p id="finished-text"></p>
+        <button id="btn-finish-home" class="primary-btn">Volver a las rutinas</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
