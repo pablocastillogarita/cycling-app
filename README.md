@@ -31,8 +31,8 @@ Cada cambio en `main` se publica solo en GitHub Pages
      "name": "Mi rutina",
      "description": "Texto corto",
      "segments": [
-       { "duration": 120, "effort": 0, "position": "sentado", "label": "Calentamiento" },
-       { "duration": 40,  "effort": 3, "position": "de_pie",  "label": "Bloque 1 · intervalo 1 de 8" }
+       { "duration": 120, "effort": 0, "position": "sentado", "label": "Pedaleo suave", "section": "Calentamiento" },
+       { "duration": 40,  "effort": 3, "position": "de_pie",  "label": "Bloque 1 · intervalo 1 de 8", "section": "Bloque 1" }
      ]
    }
    ```
@@ -40,5 +40,6 @@ Cada cambio en `main` se publica solo en GitHub Pages
    - `duration`: segundos.
    - `effort`: 0 Muy ligero, 1 Ligero, 2 Moderado, 3 Intenso, 4 Muy intenso, 5 Máximo.
    - `position`: `sentado`, `de_pie` o `estiramiento`.
+   - `section`: parte de la clase; aparece en el menú para saltar directo a ella.
 2. Agrégala a `public/routines/index.json`.
 3. Agrégala a la lista `FILES` de `public/sw.js` y sube `VERSION`.

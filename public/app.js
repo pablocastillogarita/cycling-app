@@ -18,7 +18,6 @@ const POSITIONS = {
   estiramiento: { name: 'Estiramiento', short: 'estiramientos' },
 };
 
-const PRE_ANNOUNCE_SECONDS = 10;
 
 /* ================= Utilidades ================= */
 
@@ -37,6 +36,22 @@ function storageGet(key, fallback) {
 }
 function storageSet(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* sin almacenamiento */ }
+}
+
+// Ajustes guardados en este dispositivo.
+const Settings = Object.assign({ voice: true, beeps: true, pre: 10 }, storageGet('settings', {}));
+function saveSettings() { storageSet('settings', { voice: Settings.voice, beeps: Settings.beeps, pre: Settings.pre }); }
+
+// Secciones de una rutina (Calentamiento, Bloque 1…) con su inicio.
+function routineSections(routine) {
+  const out = [];
+  for (const seg of routine.segments) {
+    const name = seg.section || 'Clase';
+    const last = out[out.length - 1];
+    if (!last || last.name !== name) out.push({ name, start: seg.start, end: seg.start + seg.duration });
+    else last.end = seg.start + seg.duration;
+  }
+  return out;
 }
 
 // Añade a cada tramo su inicio y devuelve la duración total.
@@ -149,7 +164,7 @@ const Cues = {
   },
 
   say(text) {
-    if (this.muted || !('speechSynthesis' in window)) return;
+    if (this.muted || !Settings.voice || !('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = this.voice ? this.voice.lang : 'es-ES';
@@ -159,7 +174,7 @@ const Cues = {
   },
 
   beep(freq = 880, ms = 140) {
-    if (this.muted || !this.audio) return;
+    if (this.muted || !Settings.beeps || !this.audio) return;
     const ctx = this.audio;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -271,6 +286,16 @@ const Player = {
 
   toggle() { this.running ? this.pause() : this.play(); },
 
+  seekTo(seconds) {
+    if (!this.routine) return;
+    this.finished = false;
+    $('finished').hidden = true;
+    this.elapsedBefore = Math.max(0, Math.min(seconds, this.routine.total - 0.5));
+    if (this.running) this.startedAt = performance.now();
+    this.lastWhole = null;
+    this.tick();
+  },
+
   seekSegment(delta) {
     if (!this.routine || this.finished) return;
     const segs = this.routine.segments;
@@ -306,9 +331,10 @@ const Player = {
         const untilChange = next.start - e;
         const whole = Math.ceil(untilChange);
         if (whole !== this.lastWhole) {
-          if (whole === PRE_ANNOUNCE_SECONDS && !this.preAnnounced.has(nci) && next.start - seg.start >= PRE_ANNOUNCE_SECONDS + 3) {
+          const pre = Number(Settings.pre);
+          if (pre > 0 && whole === pre && !this.preAnnounced.has(nci) && next.start - seg.start >= pre + 3) {
             this.preAnnounced.add(nci);
-            Cues.say(`En ${PRE_ANNOUNCE_SECONDS} segundos, ${describeShort(next)}.`);
+            Cues.say(`En ${pre} segundos, ${describeShort(next)}.`);
           }
           if (whole >= 1 && whole <= 3 && this.lastWhole !== null) Cues.beep(880, 120);
           this.lastWhole = whole;
@@ -329,6 +355,7 @@ const Player = {
     Cues.say('¡Clase terminada! Buen trabajo.');
     $('finished-text').textContent = `Completaste ${this.routine.name} (${fmt(this.routine.total)}).`;
     $('finished').hidden = false;
+    addHistory(this.routine);
   },
 
   render(e = this.elapsed(), idx = segmentIndexAt(this.routine, e), segRemaining) {
@@ -380,6 +407,46 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && Player.running) Player.requestWakeLock();
 });
 
+/* ================= Historial ================= */
+
+function getHistory() { return storageGet('history', []); }
+
+function addHistory(routine) {
+  const h = getHistory();
+  h.unshift({ id: routine.id, name: routine.name, seconds: Math.round(routine.total), date: new Date().toISOString() });
+  storageSet('history', h.slice(0, 500));
+}
+
+function renderHistory() {
+  const h = getHistory();
+  const list = $('history-list');
+  list.innerHTML = '';
+  const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
+  const week = h.filter((x) => new Date(x.date).getTime() >= weekAgo);
+  const mins = (arr) => Math.round(arr.reduce((a, x) => a + x.seconds, 0) / 60);
+  $('history-summary').textContent = h.length
+    ? `Esta semana: ${week.length} ${week.length === 1 ? 'clase' : 'clases'}, ${mins(week)} min. En total: ${h.length}, ${mins(h)} min.`
+    : 'Aquí aparecen las clases que terminas.';
+  if (!h.length) {
+    list.innerHTML = '<li class="empty">Todavía no hay clases terminadas.</li>';
+  }
+  const dateFmt = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  for (const x of h) {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.innerHTML = '<span><strong></strong><small></small></span><span class="dur"></span>';
+    li.querySelector('strong').textContent = x.name;
+    const d = dateFmt.format(new Date(x.date));
+    li.querySelector('small').textContent = d.charAt(0).toUpperCase() + d.slice(1);
+    li.querySelector('.dur').textContent = `${Math.round(x.seconds / 60)} min`;
+    list.appendChild(li);
+  }
+  const clear = $('btn-clear-history');
+  clear.hidden = !h.length;
+  clear.dataset.armed = '';
+  clear.textContent = 'Borrar historial';
+}
+
 /* ================= Navegación ================= */
 
 let routines = [];
@@ -400,7 +467,7 @@ function renderHome() {
     btn.className = 'routine-card';
     btn.innerHTML = `<h2></h2><span class="meta"></span><p></p>`;
     btn.querySelector('h2').textContent = r.name;
-    btn.querySelector('.meta').textContent = `${Math.round(r.total / 60)} min · ${r.segments.length} tramos`;
+    btn.querySelector('.meta').textContent = `${Math.round(r.total / 60)} min · ${routineSections(r).map((x) => x.name).join(' · ')}`;
     btn.querySelector('p').textContent = r.description || '';
     const svg = document.createElementNS(SVG_NS, 'svg');
     drawChart(svg, r);
@@ -411,20 +478,74 @@ function renderHome() {
   }
 }
 
+/* Menú lateral dentro de la clase */
+function openDrawer() {
+  const r = Player.routine;
+  if (!r) return;
+  const e = Player.elapsed();
+
+  const secList = $('drawer-sections');
+  secList.innerHTML = '';
+  for (const sec of routineSections(r)) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.innerHTML = '<span></span><small></small>';
+    b.querySelector('span').textContent = sec.name;
+    b.querySelector('small').textContent = fmt(sec.start);
+    if (e >= sec.start && e < sec.end) b.classList.add('current');
+    else if (e >= sec.end) b.classList.add('done');
+    b.addEventListener('click', () => { Player.seekTo(sec.start); closeDrawer(); });
+    li.appendChild(b);
+    secList.appendChild(li);
+  }
+
+  const sesList = $('drawer-sessions');
+  sesList.innerHTML = '';
+  for (const other of routines) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = `#/rutina/${other.id}`;
+    a.innerHTML = '<span></span><small></small>';
+    a.querySelector('span').textContent = other.name;
+    a.querySelector('small').textContent = `${Math.round(other.total / 60)} min`;
+    if (other === r) a.classList.add('current');
+    a.addEventListener('click', closeDrawer);
+    li.appendChild(a);
+    sesList.appendChild(li);
+  }
+  $('drawer').hidden = false;
+}
+
+function closeDrawer() { $('drawer').hidden = true; }
+
+function showTab(name) {
+  for (const t of ['sesiones', 'historial', 'ajustes']) $('tab-' + t).hidden = t !== name;
+  document.querySelectorAll('.tabbar a').forEach((a) => {
+    if (a.dataset.tab === name) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+  if (name === 'historial') renderHistory();
+  if (name === 'ajustes') syncSettings();
+  window.scrollTo(0, 0);
+}
+
 function route() {
+  closeDrawer();
   const m = location.hash.match(/^#\/rutina\/(.+)$/);
   const routine = m && routines.find((r) => r.id === decodeURIComponent(m[1]));
   if (routine) {
     $('home').hidden = true;
     $('workout').hidden = false;
     if (Player.routine !== routine) Player.load(routine);
-  } else {
-    Player.stop();
-    Player.routine = null;
-    $('workout').hidden = true;
-    $('home').hidden = false;
-    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#161616');
+    return;
   }
+  Player.stop();
+  Player.routine = null;
+  $('workout').hidden = true;
+  $('home').hidden = false;
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', '#161616');
+  const tab = (location.hash.match(/^#\/(historial|ajustes)$/) || [])[1] || 'sesiones';
+  showTab(tab);
 }
 
 function syncMuteButton() {
@@ -433,12 +554,39 @@ function syncMuteButton() {
   b.setAttribute('aria-label', Cues.muted ? 'Activar avisos' : 'Silenciar avisos');
 }
 
+function syncSettings() {
+  $('set-voice').checked = Settings.voice;
+  $('set-beeps').checked = Settings.beeps;
+  $('set-pre').value = String(Settings.pre);
+  $('set-muted').checked = Cues.muted;
+}
+
 $('btn-play').addEventListener('click', () => Player.toggle());
 $('btn-prev').addEventListener('click', () => Player.seekSegment(-1));
 $('btn-next').addEventListener('click', () => Player.seekSegment(1));
-$('btn-back').addEventListener('click', () => { location.hash = ''; });
-$('btn-finish-home').addEventListener('click', () => { location.hash = ''; });
+$('btn-back').addEventListener('click', () => { location.hash = '#/'; });
+$('btn-finish-home').addEventListener('click', () => { location.hash = '#/'; });
 $('btn-mute').addEventListener('click', () => { Cues.setMuted(!Cues.muted); syncMuteButton(); });
+$('btn-menu').addEventListener('click', openDrawer);
+$('btn-drawer-close').addEventListener('click', closeDrawer);
+$('drawer').addEventListener('click', (ev) => { if (ev.target === $('drawer')) closeDrawer(); });
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeDrawer(); });
+
+$('set-voice').addEventListener('change', (ev) => { Settings.voice = ev.target.checked; saveSettings(); });
+$('set-beeps').addEventListener('change', (ev) => { Settings.beeps = ev.target.checked; saveSettings(); });
+$('set-pre').addEventListener('change', (ev) => { Settings.pre = Number(ev.target.value); saveSettings(); });
+$('set-muted').addEventListener('change', (ev) => { Cues.setMuted(ev.target.checked); syncMuteButton(); });
+$('btn-test-voice').addEventListener('click', () => {
+  Cues.unlock();
+  Cues.beep(880, 120);
+  Cues.say('¡De pie! Sube la intensidad.');
+});
+$('btn-clear-history').addEventListener('click', (ev) => {
+  const b = ev.currentTarget;
+  if (b.dataset.armed) { storageSet('history', []); renderHistory(); return; }
+  b.dataset.armed = '1';
+  b.textContent = 'Toca otra vez para borrar';
+});
 window.addEventListener('hashchange', route);
 
 (async function init() {
@@ -446,7 +594,7 @@ window.addEventListener('hashchange', route);
   try {
     await loadRoutines();
   } catch (err) {
-    $('routine-list').innerHTML = '<li class="muted">No se pudieron cargar las rutinas.</li>';
+    $('routine-list').innerHTML = '<li class="muted">No se pudieron cargar las sesiones.</li>';
     console.error(err);
     return;
   }

@@ -1,6 +1,6 @@
 // Guarda la app en el teléfono para que funcione sin internet.
 // Sube VERSION cada vez que cambien archivos para que se actualice.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `cycling-${VERSION}`;
 const FILES = [
   './',
