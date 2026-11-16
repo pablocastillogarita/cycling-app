@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cycling App</title>
+  <meta name="description" content="Rutinas guiadas para bicicleta estática">
+  <meta name="theme-color" content="#161616">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Inicio: rutinas, historial y ajustes -->
+  <div id="home" class="view">
+    <main class="home-main">
+      <section id="tab-sesiones" class="tab">
+        <header class="home-header">
+          <h1>Sesiones</h1>
+          <p>Elige una sesión y a pedalear.</p>
+        </header>
+        <ul id="routine-list" class="routine-list"></ul>
+      </section>
+
+      <section id="tab-historial" class="tab" hidden>
+        <header class="home-header">
+          <h1>Historial</h1>
+          <p id="history-summary"></p>
+        </header>
+        <ul id="history-list" class="history-list"></ul>
+        <button id="btn-clear-history" class="text-btn danger" hidden>Borrar historial</button>
+      </section>
+
+      <section id="tab-ajustes" class="tab" hidden>
+        <header class="home-header">
+          <h1>Ajustes</h1>
+          <p>Se guardan en este dispositivo.</p>
+        </header>
+        <div class="settings">
+          <label class="setting">
+            <span><strong>Avisos de voz</strong><small>"¡De pie!", "Sube la intensidad"…</small></span>
+            <input type="checkbox" id="set-voice" class="switch">
+          </label>
+          <label class="setting">
+            <span><strong>Pitidos</strong><small>Cuenta 3, 2, 1 antes de cada cambio</small></span>
+            <input type="checkbox" id="set-beeps" class="switch">
+          </label>
+          <label class="setting">
+            <span><strong>Aviso antes del cambio</strong><small>"En 10 segundos, de pie, intenso"</small></span>
+            <select id="set-pre">
+              <option value="0">No avisar</option>
+              <option value="5">5 s antes</option>
+              <option value="10">10 s antes</option>
+              <option value="15">15 s antes</option>
+            </select>
+          </label>
+          <label class="setting">
+            <span><strong>Silenciar todo</strong><small>También con el botón 🔈 durante la clase</small></span>
+            <input type="checkbox" id="set-muted" class="switch">
+          </label>
+          <button id="btn-test-voice" class="text-btn">Probar la voz</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Menú">
+      <a href="#/" data-tab="sesiones">
+        <svg viewBox="0 0 24 24"><circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l3-7h6l3 7M9 9l3 7H6M14 6h3"/></svg>
+        <span>Sesiones</span>
+      </a>
+      <a href="#/historial" data-tab="historial">
+        <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>
+        <span>Historial</span>
+      </a>
+      <a href="#/ajustes" data-tab="ajustes">
+        <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+        <span>Ajustes</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Entrenamiento -->
+  <main id="workout" class="view" hidden>
+    <header class="topbar">
+      <button id="btn-back" class="icon-btn" aria-label="Volver a las sesiones">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="topbar-title">
+        <span id="w-name"></span>
+        <span id="w-clock" class="muted"></span>
+      </div>
+      <button id="btn-menu" class="icon-btn" aria-label="Abrir menú">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <button id="btn-mute" class="icon-btn" aria-label="Silenciar avisos" aria-pressed="false">
+        <svg class="ic-on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+        <svg class="ic-off" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+      </button>
+    </header>
+
+    <section class="cards">
+      <div class="card">
+        <span class="card-label">Esfuerzo</span>
+        <span id="c-effort" class="card-value"></span>
+      </div>
+      <div class="card">
+        <span class="card-label">Próximo cambio</span>
+        <span id="c-next-time" class="card-value mono"></span>
+        <span id="c-next-what" class="card-sub"></span>
+      </div>
+      <div class="card wide">
+        <span class="card-label" id="c-label"></span>
+        <span class="card-value"><span id="c-seg-time" class="mono"></span>&nbsp;&nbsp;<span id="c-position"></span></span>
+      </div>
+    </section>
+
+    <section class="chart-wrap">
+      <svg id="chart" class="chart" preserveAspectRatio="none" aria-label="Gráfico de intensidad de la clase"></svg>
+    </section>
+
+    <nav class="controls">
+      <button id="btn-prev" class="icon-btn big" aria-label="Tramo anterior">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14M19 5l-9 7 9 7z"/></svg>
+      </button>
+      <button id="btn-play" class="play-btn" aria-label="Empezar">
+        <svg class="ic-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
+        <svg class="ic-pause" viewBox="0 0 24 24"><path d="M7 4h4v16H7zM14 4h4v16h-4z"/></svg>
+      </button>
+      <button id="btn-next" class="icon-btn big" aria-label="Siguiente tramo">
+        <svg viewBox="0 0 24 24"><path d="M18 5v14M5 5l9 7-9 7z"/></svg>
+      </button>
+    </nav>
+
+    <div id="drawer" class="drawer" hidden>
+      <div class="drawer-panel" role="dialog" aria-label="Menú">
+        <header class="drawer-head">
+          <strong>Menú</strong>
+          <button id="btn-drawer-close" class="icon-btn" aria-label="Cerrar menú">
+            <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </header>
+        <h3>Partes de esta clase</h3>
+        <ul id="drawer-sections" class="drawer-list"></ul>
+        <h3>Sesiones</h3>
+        <ul id="drawer-sessions" class="drawer-list"></ul>
+        <h3>Más</h3>
+        <ul class="drawer-list">
+          <li><a href="#/historial">Historial</a></li>
+          <li><a href="#/ajustes">Ajustes</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="finished" class="finished" hidden>
+      <div class="finished-box">
+        <h2>¡Clase terminada!</h2>
+        <p id="finished-text"></p>
+        <button id="btn-finish-home" class="primary-btn">Volver a las sesiones</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

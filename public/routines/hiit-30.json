@@ -1,0 +1,301 @@
+{
+ "id": "hiit-30",
+ "name": "HIIT 30 minutos",
+ "description": "Calentamiento, dos bloques de 8 intervalos de 40 s (intenso y muy intenso) y vuelta a la calma.",
+ "segments": [
+  {
+   "duration": 123,
+   "effort": 0,
+   "position": "sentado",
+   "label": "Pedaleo sin resistencia",
+   "section": "Calentamiento"
+  },
+  {
+   "duration": 160,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Añade carga suave",
+   "section": "Calentamiento"
+  },
+  {
+   "duration": 60,
+   "effort": 2,
+   "position": "sentado",
+   "label": "Resistencia moderada",
+   "section": "Calentamiento"
+  },
+  {
+   "duration": 50,
+   "effort": 2,
+   "position": "de_pie",
+   "label": "De pie, resistencia moderada",
+   "section": "Calentamiento"
+  },
+  {
+   "duration": 50,
+   "effort": 2,
+   "position": "sentado",
+   "label": "Resistencia moderada",
+   "section": "Calentamiento"
+  },
+  {
+   "duration": 40,
+   "effort": 2,
+   "position": "de_pie",
+   "label": "De pie, resistencia moderada",
+   "section": "Calentamiento"
+  },
+  {
+   "duration": 118,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Prepárate para los intervalos",
+   "section": "Calentamiento"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "sentado",
+   "label": "Bloque 1 · intervalo 1 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 31,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "de_pie",
+   "label": "Bloque 1 · intervalo 2 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 69,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "sentado",
+   "label": "Bloque 1 · intervalo 3 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 31,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "de_pie",
+   "label": "Bloque 1 · intervalo 4 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 49,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "sentado",
+   "label": "Bloque 1 · intervalo 5 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 48,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "de_pie",
+   "label": "Bloque 1 · intervalo 6 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 68,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "sentado",
+   "label": "Bloque 1 · intervalo 7 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 43,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 3,
+   "position": "de_pie",
+   "label": "Bloque 1 · intervalo 8 de 8",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 45,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 1"
+  },
+  {
+   "duration": 40,
+   "effort": 4,
+   "position": "sentado",
+   "label": "Bloque 2 · intervalo 1 de 8",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 39,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 40,
+   "effort": 4,
+   "position": "de_pie",
+   "label": "Bloque 2 · intervalo 2 de 8",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 45,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 40,
+   "effort": 4,
+   "position": "sentado",
+   "label": "Bloque 2 · intervalo 3 de 8",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 45,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 40,
+   "effort": 4,
+   "position": "de_pie",
+   "label": "Bloque 2 · intervalo 4 de 8",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 45,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 40,
+   "effort": 4,
+   "position": "sentado",
+   "label": "Bloque 2 · intervalo 5 de 8",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 46,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 40,
+   "effort": 4,
+   "position": "de_pie",
+   "label": "Bloque 2 · intervalo 6 de 8",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 39,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 40,
+   "effort": 5,
+   "position": "sentado",
+   "label": "Bloque 2 · intervalo 7 de 8 · ataque final",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 33,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 40,
+   "effort": 5,
+   "position": "de_pie",
+   "label": "Bloque 2 · intervalo 8 de 8 · ataque final",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 18,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Recupera",
+   "section": "Bloque 2"
+  },
+  {
+   "duration": 68,
+   "effort": 1,
+   "position": "sentado",
+   "label": "Vuelta a la calma",
+   "section": "Vuelta a la calma"
+  },
+  {
+   "duration": 87,
+   "effort": 0,
+   "position": "sentado",
+   "label": "Baja pulsaciones",
+   "section": "Vuelta a la calma"
+  },
+  {
+   "duration": 131,
+   "effort": 0,
+   "position": "estiramiento",
+   "label": "Estiramientos",
+   "section": "Estiramientos"
+  }
+ ]
+}
